@@ -2,19 +2,29 @@ package com.algospace.data_structures
 import kotlin.math.*
 import kotlin.collections.*
 import java.util.*
-class Tensor<T:Comparable<T>>(var n:Int,var defaultValue:T?):Comparable<Tensor<T>>{
-    var a:Vector<T?> = Vector(n) 
-    init{
-        a.setSize(n)
-        for(i in 0..(n-1))a[i]=defaultValue
-        n=a.capacity()
-        if(n==0){
-            n=2
-            a.ensureCapacity(2)
-        }
+class Tensor<T:Comparable<T>>(var n:Int,var defaultValue:T?,var preInitialize:Boolean):ArrayList<T?>(n),Comparable<Tensor<T>>{
+    init{if(preInitialize==true)for(i in 0..(n-1))super.add(defaultValue)}
+    constructor():this(10,null,false)
+    constructor(n:Int):this(n,null,true)
+    constructor(n:Int,defaultValue:T?):this(n,defaultValue,true)
+    constructor(n:Int,preInitialize:Boolean):this(n,null,preInitialize)
+    fun back():T{return super.get(super.size-1)!!}
+    override fun clone():Tensor<T>{
+        var m:Int=super.size
+        var newTensor:Tensor<T> =Tensor(n,defaultValue)
+        for(i in 0..(m-1))newTensor[i]=this[i]
+        return newTensor
     }
-    constructor():this(0,null)
-    constructor(n:Int):this(n,null)
+    override operator fun get(index:Int):T{return super.get(index)!!}
+    fun front():T{return super.get(0)!!}
+    fun push_back(e:T){super.add(e)}
+    fun push_front(e:T){super.add(0,e)}
+    fun pop_back(){super.removeAt(super.size-1)}
+    fun pop_front(){super.removeAt(0)}
+    operator fun set(index:Int,element:T):T?{return super.set(index,element)}
+    fun setDefault(e:T){this.defaultValue=e}
+    @JvmName("Size of Tensor")
+    fun size():Int{ return super.size}
     override fun compareTo(other:Tensor<T>):Int{
         var ans=0
         var m=minOf(this.size(),other.size())
@@ -34,90 +44,16 @@ class Tensor<T:Comparable<T>>(var n:Int,var defaultValue:T?):Comparable<Tensor<T
         }
         return ans
     }
-    fun add(e:T){
-        if((a.size)==n){
-            n*=2
-            n=minOf(n,8200)
-            a.ensureCapacity(n)
-        }
-        a.add(e)
-    }
-    fun add(index:Int,e:T){
-        if((a.size)==n){
-            n*=2
-            n=minOf(n,8200)
-            a.ensureCapacity(n)
-        }
-        a.add(index,e)
-    }
-    fun back():T{
-        if(a.size==0){
-            if(defaultValue==null)
-             println("Empty Tensor, Be careful")
-            else
-             return defaultValue!!    
-        }
-        var m:Int =a.size
-        return a.get(m-1)!!
-    }
-    fun clear(){a.clear()}
-    fun clone():Tensor<T>{
-        var m:Int=a.size
-        var newTensor:Tensor<T> =Tensor(n,defaultValue)
-        for(i in 0..(m-1))newTensor[i]=this[i]
-        return newTensor
-    }
-    fun empty():Boolean{
-        if(a.size==0)
-            return true
-        return false
-    }
-    fun ensureCapacity(minCapacity:Int){a.ensureCapacity(minCapacity)}
-    operator fun get(index:Int):T{
-        if(index<0 || index>=(this.size())){
-           if(defaultValue==null)println("Null defaultValue, Be careful")
-           else
-             return defaultValue!!
-        }
-        return this.a[index]!!
-    }
-    fun front():T{
-        if(a.size ==0) {
-            if(defaultValue==null){
-               println("Empty Tensor, Be careful")
-            }
-            else return defaultValue!!
-        }
-        return a.get(0)!!
-    }
-    fun push_back(e:T){
-        if((a.size)==n){
-            n*=2
-            n=minOf(n,8200)
-            a.ensureCapacity(n)
-        }
-        a.add(e)
-    }
-    fun push_front(e:T){this.add(0,e)}
-    fun pop_back(){this.removeAt(a.size-1)}
-    fun pop_front(){this.removeAt(0)}
-    fun removeAt(index:Int){
-        if(index>=0 && index<a.size)
-           a.removeAt(index)
-    }
-    operator fun set(index:Int, e:T){a.set(index,e)}
-    fun setDefault(e:T){this.defaultValue=e}
-    fun size():Int{ return a.size}
     fun toList():List<T>{
         var m=this.size()
-        var vector:Vector<T> =Vector(m)
-        for(i in 0..(m-1))vector[i]=this[i]
-        return vector.toList()
+        var list:ArrayList<T> =ArrayList(m)
+        for(i in 0..(m-1))list.add(super.get(i)!!)
+        return list.toList()
     }
     fun toMutableList():MutableList<T>{
         var m=this.size()
-        var vector:Vector<T> =Vector(m)
-        for(i in 0..(m-1))vector[i]=this[i]
-        return vector.toMutableList()
+        var list:ArrayList<T> =ArrayList(m)
+        for(i in 0..(m-1))list.add(super.get(i)!!)
+        return list.toMutableList()
     }
 }

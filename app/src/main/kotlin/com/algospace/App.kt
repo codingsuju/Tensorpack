@@ -6,11 +6,9 @@ import kotlin.collections.mutableListOf
 import java.io.PrintWriter
 import java.util.StringTokenizer
 fun code(){
-    var tensor=tensorOf(tensorOf(2,3),tensorOf(2,4),tensorOf(2,1),tensorOf(2,5))
-    tensor.sort({a:Tensor<Int>,b:Tensor<Int> ->
-        b.compareTo(a)
-    })
-    printTensorOfTensor(tensor)
+    var a=Tensor<Int>(16)
+    for(i in 0..15)a[i]=i
+    for(i in a)print("$i ")
 }
 fun main(){
     code()

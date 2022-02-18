@@ -4,20 +4,39 @@ import kotlin.collections.*
 import java.util.*
 fun <T:Comparable<T>> Tensor<T>.sort(lambda:((T,T)->Int)?=null){
     var m=this.size()
-    var vector:Vector<T> =Vector(m)
-    vector.setSize(m)
+    var list:ArrayList<T> =ArrayList(m)
     for(i in 0..(m-1)){
-        vector[i]=this[i]
+        list.add(this[i])
     }
     if(lambda==null){
-       vector.sort()
+       list.sort()
     }
     else{
-        vector.sortWith(lambda)
+        list.sortWith(lambda)
     }
     for(i in 0..(m-1)){
-        this.a[i]=vector[i]
+        this[i]=list[i]
     }
+}
+fun <T:Comparable<T>> Tensor<T>.lower_bound(e:T):Int{
+    var low=0
+    var high=this.size()-1
+    while(low<=high){
+        var mid=low+(high-low)/2
+        if(this[mid].compareTo(e)==1 || this[mid].compareTo(e)==0) high=mid-1
+        else low=mid+1
+    }
+    return low
+}
+fun <T:Comparable<T>> Tensor<T>.upper_bound(e:T):Int{
+    var low=0
+    var high=this.size()-1
+    while(low<=high){
+        var mid=low+(high-low)/2
+        if(this[mid].compareTo(e)==1) high=mid-1
+        else low=mid+1
+    }
+    return low
 }
 fun <T:Comparable<T>> printTensor(tensor:Tensor<T>){
     for(i in 0..(tensor.size()-1))print("${tensor[i]} ")
@@ -34,7 +53,7 @@ fun <T:Comparable<T>> printTensorOfTensor(tensor:Tensor<Tensor<T>>){
 
 fun <T:Comparable<T>> tensorOf(vararg t:T):Tensor<T>{
     var m=t.size
-    var tensor=Tensor<T>(m,null)
+    var tensor=Tensor<T>(m)
     for(i in 0..(m-1))tensor[i]=t[i]
     return tensor
 }
@@ -76,35 +95,35 @@ fun Tensor<Int>.prefixSum():LongArray{
 @JvmName("ListToTensor")
 fun <T:Comparable<T>> List<T>.toTensor():Tensor<T>{
     var m=this.size
-    var tensor=Tensor<T>(m,null)
-    for(i in 0..(m-1))tensor[i]=this[i]
+    var tensor=Tensor<T>(m)
+    for(i in 0..(m-1))tensor[i]=this.get(i)
     return tensor
 }
 @JvmName("MutableListToTensor")
 fun <T:Comparable<T>> MutableList<T>.toTensor():Tensor<T>{
     var m=this.size
-    var tensor=Tensor<T>(m,null)
+    var tensor=Tensor<T>(m)
     for(i in 0..(m-1))tensor[i]=this[i]
     return tensor
 }
 @JvmName("ArrayToTensor")
 fun <T:Comparable<T>> Array<T>.toTensor():Tensor<T>{
     var m=this.size
-    var tensor=Tensor<T>(m,null)
+    var tensor=Tensor<T>(m)
     for(i in 0..(m-1))tensor[i]=this[i]
     return tensor
 } 
 @JvmName("IntArrayToTensor")
 fun IntArray.toTensor():Tensor<Int>{
     var m=this.size
-    var tensor=Tensor<Int>(m,null)
+    var tensor=Tensor<Int>(m)
     for(i in 0..(m-1))tensor[i]=this[i]
     return tensor
 }
 @JvmName("LongArrayToTensor")
 fun LongArray.toTensor():Tensor<Long>{
     var m=this.size
-    var tensor=Tensor<Long>(m,null)
+    var tensor=Tensor<Long>(m)
     for(i in 0..(m-1))tensor[i]=this[i]
     return tensor
 } 
@@ -112,9 +131,9 @@ fun LongArray.toTensor():Tensor<Long>{
 fun <T:Comparable<T>> getTensorOfTensor(list:List<List<T>>):Tensor<Tensor<T>>{
     var m=list.size
     var n=list[0].size
-    var tensor=Tensor<Tensor<T>>(m,null)
+    var tensor=Tensor<Tensor<T>>(m)
     for(i in 0..(m-1)){
-        var e=Tensor<T>(n,null)
+        var e=Tensor<T>(n)
         for(j in 0..(n-1)){
             e[j]=list[i][j]
         }
@@ -126,9 +145,9 @@ fun <T:Comparable<T>> getTensorOfTensor(list:List<List<T>>):Tensor<Tensor<T>>{
 fun <T:Comparable<T>> getTensorOfTensor(list:MutableList<List<T>>):Tensor<Tensor<T>>{
     var m=list.size
     var n=list[0].size
-    var tensor=Tensor<Tensor<T>>(m,null)
+    var tensor=Tensor<Tensor<T>>(m)
     for(i in 0..(m-1)){
-        var e=Tensor<T>(n,null)
+        var e=Tensor<T>(n)
         for(j in 0..(n-1)){
             e[j]=list[i][j]
         }
@@ -140,9 +159,9 @@ fun <T:Comparable<T>> getTensorOfTensor(list:MutableList<List<T>>):Tensor<Tensor
 fun <T:Comparable<T>> getTensorOfTensor(list:MutableList<MutableList<T>>):Tensor<Tensor<T>>{
     var m=list.size
     var n=list[0].size
-    var tensor=Tensor<Tensor<T>>(m,null)
+    var tensor=Tensor<Tensor<T>>(m)
     for(i in 0..(m-1)){
-        var e=Tensor<T>(n,null)
+        var e=Tensor<T>(n)
         for(j in 0..(n-1)){
             e[j]=list[i][j]
         }
@@ -152,31 +171,28 @@ fun <T:Comparable<T>> getTensorOfTensor(list:MutableList<MutableList<T>>):Tensor
 }
 fun <T:Comparable<T>> getListOfList(tensor:Tensor<Tensor<T>>):List<List<T>>{
     var m=tensor.size()
-    var vector:Vector<List<T>> =Vector(m)
-    vector.setSize(m)
+    var list:ArrayList<List<T>> =ArrayList(m)
     for(i in 0..(m-1)){
-        var list=tensor[i].toList()
-        vector[i]=list
+        var e=tensor[i].toList()
+        list.add(e)
     }
-    return vector.toList()
+    return list.toList()
 }
 fun <T:Comparable<T>> getMutableListOfList(tensor:Tensor<Tensor<T>>):MutableList<List<T>>{
     var m=tensor.size()
-    var vector:Vector<List<T>> =Vector(m)
-    vector.setSize(m)
+    var list:ArrayList<List<T>> =ArrayList(m)
     for(i in 0..(m-1)){
-        var list=tensor[i].toList()
-        vector[i]=list
+        var e=tensor[i].toList()
+        list.add(e)
     }
-    return vector.toMutableList()
+    return list.toMutableList()
 }
 fun <T:Comparable<T>> getMutableListOfMutableList(tensor:Tensor<Tensor<T>>):MutableList<MutableList<T>>{
     var m=tensor.size()
-    var vector:Vector<MutableList<T>> =Vector(m)
-    vector.setSize(m)
+    var list:ArrayList<MutableList<T>> =ArrayList(m)
     for(i in 0..(m-1)){
-        var list=tensor[i].toMutableList()
-        vector[i]=list
+        var e=tensor[i].toMutableList()
+        list.add(e)
     }
-    return vector.toMutableList()
+    return list.toMutableList()
 }
